@@ -120,20 +120,51 @@ src_id,dst_id,rel_type,other_attrs
 
 ### 1. 环境准备
 
-确保已安装 Python 3.7+ 和以下依赖：
+#### 如果没有 .venv 虚拟环境
+
+如果项目目录中没有 `.venv` 文件夹，请按以下步骤初始化虚拟环境：
 
 ```bash
-pip install pandas networkx numpy matplotlib scipy
+# 1. 确保已安装 Python 3.7+
+python3 --version
+
+# 2. 创建虚拟环境
+python3 -m venv .venv
+
+# 3. 激活虚拟环境
+source .venv/bin/activate
+
+# 4. 升级 pip
+pip install --upgrade pip
+
+# 5. 安装项目依赖
+pip install -r requirements.txt
+```
+
+#### 如果已有 .venv 虚拟环境
+
+项目已配置虚拟环境，请按以下步骤设置：
+
+```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 安装依赖（已预装，可选）
+pip install -r requirements.txt
 ```
 
 ### 2. 运行分析
 
 ```bash
-# 方法1: 直接运行主程序
-cd src
-python3 graph_analysis.py
+# 方法1: 使用便捷脚本（推荐）
+./run_analysis.sh
 
-# 方法2: 作为模块运行
+# 方法2: 手动激活环境后运行
+source .venv/bin/activate
+python src/graph_analysis.py
+
+# 方法3: 作为模块运行
+source .venv/bin/activate
 python3 -c "
 import sys
 sys.path.insert(0, '.')

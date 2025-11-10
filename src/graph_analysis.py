@@ -23,6 +23,8 @@ import json
 from scipy.optimize import curve_fit
 from scipy.stats import linregress
 import warnings
+from typing import Optional, Dict, List, Any, Tuple
+
 warnings.filterwarnings('ignore')
 
 # 添加项目根目录到路径
@@ -52,7 +54,7 @@ def apply_ascii_minus_formatter(ax):
 class MedicalGraphAnalyzer:
     """医疗知识图谱分析器"""
     
-    def __init__(self, nodes_file, edges_file, output_dir='output'):
+    def __init__(self, nodes_file: str, edges_file: str, output_dir: str = 'output'):
         """
         初始化分析器
         
@@ -61,35 +63,48 @@ class MedicalGraphAnalyzer:
             edges_file: 边文件路径
             output_dir: 输出目录
         """
-        self.nodes_file = nodes_file
-        self.edges_file = edges_file
-        self.output_dir = output_dir
-        self.graph = None
-        self.nodes_df = None
-        self.edges_df = None
+        self.nodes_file: str = nodes_file
+        self.edges_file: str = edges_file
+        self.output_dir: str = output_dir
+        self.graph: Optional[nx.DiGraph] = None
+        self.nodes_df: Optional[pd.DataFrame] = None
+        self.edges_df: Optional[pd.DataFrame] = None
         
         # 创建输出目录
         os.makedirs(os.path.join(output_dir, 'full_graph'), exist_ok=True)
         os.makedirs(os.path.join(output_dir, 'subgraph'), exist_ok=True)
         
-    def load_data(self):
+    def load_data(self) -> None:
         """加载图数据"""
         print("正在加载数据...")
-        self.nodes_df = pd.read_csv(self.nodes_file)
-        self.edges_df = pd.read_csv(self.edges_file)
+        try:
+            self.nodes_df = pd.read_csv(self.nodes_file)
+            self.edges_df = pd.read_csv(self.edges_file)
+            
+            if self.nodes_df is None or self.edges_df is None:
+                raise ValueError("数据加载失败")
+                
+            print(f"节点数量: {len(self.nodes_df)}")
+            print(f"边数量: {len(self.edges_df)}")
+            print(f"节点类型: {self.nodes_df['type'].unique()}")
+            print(f"关系类型: {self.edges_df['rel_type'].unique()}")
+        except Exception as e:
+            print(f"数据加载出错: {e}")
+            raise
         
-        print(f"节点数量: {len(self.nodes_df)}")
-        print(f"边数量: {len(self.edges_df)}")
-        print(f"节点类型: {self.nodes_df['type'].unique()}")
-        print(f"关系类型: {self.edges_df['rel_type'].unique()}")
-        
-    def build_graph(self, rel_type=None):
+    def build_graph(self, rel_type: Optional[str] = None) -> nx.DiGraph:
         """
         构建图
         
         参数:
             rel_type: 关系类型，如果为None则构建完整图
+            
+        返回:
+            构建的图对象
         """
+        if self.nodes_df is None or self.edges_df is None:
+            raise ValueError("数据未加载，请先调用load_data()")
+            
         if rel_type is None:
             edges = self.edges_df
             print("构建完整图...")
@@ -124,14 +139,20 @@ class MedicalGraphAnalyzer:
         """幂律函数: y = a * x^(-b)"""
         return a * np.power(x, -b)
     
-    def analyze_degree_distribution(self, output_prefix="full", is_subgraph=False):
+    def analyze_degree_distribution(self, output_prefix: str = "full", is_subgraph: bool = False) -> Dict[str, Any]:
         """
         分析度分布
         
         参数:
             output_prefix: 输出文件前缀
             is_subgraph: 是否为子图分析
+            
+        返回:
+            统计数据字典
         """
+        if self.graph is None:
+            raise ValueError("图未构建，请先调用build_graph()")
+            
         print("\n=== 分析度分布 ===")
         
         # 转换为无向图来计算度
@@ -216,7 +237,7 @@ class MedicalGraphAnalyzer:
             'r_squared': r_value**2 if has_fit else None
         }
         
-    def analyze_clustering_coefficient(self, output_prefix="full", is_subgraph=False):
+    def analyze_clustering_coefficient(self, output_prefix: str = "full", is_subgraph: bool = False) -> None:
         """
         分析聚类系数
         
@@ -224,6 +245,9 @@ class MedicalGraphAnalyzer:
             output_prefix: 输出文件前缀
             is_subgraph: 是否为子图分析
         """
+        if self.graph is None:
+            raise ValueError("图未构建，请先调用build_graph()")
+            
         print("\n=== 分析聚类系数 ===")
         
         # 转换为无向图
@@ -239,7 +263,7 @@ class MedicalGraphAnalyzer:
         degrees = dict(G_undirected.degree())
         
         # 创建度到聚类系数的映射
-        degree_to_clustering = {}
+        degree_to_clustering: Dict[int, List[float]] = {}
         for node in G_undirected.nodes():
             d = degrees[node]
             c = clustering_coeffs[node]
@@ -325,7 +349,7 @@ class MedicalGraphAnalyzer:
         
         print(f"聚类系数图已保存: {output_path}")
         
-    def analyze_path_length(self, output_prefix="full", sample_size=10000, is_subgraph=False):
+    def analyze_path_length(self, output_prefix: str = "full", sample_size: int = 10000, is_subgraph: bool = False) -> None:
         """
         分析路径长度分布
         
@@ -334,6 +358,9 @@ class MedicalGraphAnalyzer:
             sample_size: 采样数量
             is_subgraph: 是否为子图分析
         """
+        if self.graph is None:
+            raise ValueError("图未构建，请先调用build_graph()")
+            
         print("\n=== 分析路径长度分布 ===")
         
         # 转换为无向图
@@ -349,7 +376,7 @@ class MedicalGraphAnalyzer:
         # 采样计算路径长度分布
         print(f"采样 {sample_size} 对节点计算最短路径...")
         nodes = list(G_wcc.nodes())
-        path_lengths = []
+        path_lengths: List[int] = []
         
         np.random.seed(42)
         for _ in range(sample_size):
@@ -399,7 +426,7 @@ class MedicalGraphAnalyzer:
         
         print(f"路径长度分布图已保存: {output_path}")
         
-    def analyze_connected_components(self, output_prefix="full", is_subgraph=False):
+    def analyze_connected_components(self, output_prefix: str = "full", is_subgraph: bool = False) -> None:
         """
         分析连通分量 (使用强连通分量)
         
@@ -407,6 +434,9 @@ class MedicalGraphAnalyzer:
             output_prefix: 输出文件前缀
             is_subgraph: 是否为子图分析
         """
+        if self.graph is None:
+            raise ValueError("图未构建，请先调用build_graph()")
+            
         print("\n=== 分析连通分量 ===")
         
         # 使用有向图的强连通分量
@@ -486,6 +516,10 @@ class MedicalGraphAnalyzer:
             try:
                 self.build_graph(rel_type)
                 
+                if self.graph is None:
+                    print(f"构建关系类型 {rel_type} 的子图失败")
+                    continue
+                    
                 # 跳过节点数太少的子图
                 if self.graph.number_of_nodes() < 10:
                     print(f"子图节点数太少({self.graph.number_of_nodes()})，跳过分析")
@@ -513,7 +547,7 @@ def main():
     print("="*60)
     
     # 初始化分析器
-    analyzer = MedicalGraphAnalyzer('nodes.csv', 'edges.csv')
+    analyzer = MedicalGraphAnalyzer('data/nodes.csv', 'data/edges.csv')
     
     # 加载数据
     analyzer.load_data()
