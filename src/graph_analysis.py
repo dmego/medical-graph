@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 医疗知识图谱基本属性分析
+
 分析内容：
 1. 度分布 (Degree Distribution)
 2. 路径长度 (Path Length Distribution)
@@ -12,74 +10,53 @@
 
 import os
 import sys
-import pandas as pd
+import warnings
+from collections import Counter
+from typing import Dict, List, Any, Optional, cast
+
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
-from matplotlib.ticker import FuncFormatter
-from collections import Counter
-import json
-from scipy.optimize import curve_fit
+import pandas as pd
 from scipy.stats import linregress
-import warnings
-from typing import Optional, Dict, List, Any, Tuple
 
+# 忽略警告信息
 warnings.filterwarnings('ignore')
 
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# 导入中文字体设置
-from src.fonts import setup_matplotlib_chinese
+# 导入数据加载器和中文图表配置
+from src.data_loader import load_nodes, load_edges, OUTPUT_DIR
+from src.set_chinese_plot import configure_chinese_plot_style
 
-# 设置中文字体
-setup_matplotlib_chinese()
-
-# 修复负号显示问题 - 全局设置
-rcParams['axes.unicode_minus'] = False
-
-# 自定义格式化器,强制使用ASCII减号
-def format_with_ascii_minus(x, pos):
-    """将Unicode负号替换为ASCII减号"""
-    return str(x).replace('−', '-')
-
-# 全局应用ASCII负号格式化器到所有图表
-def apply_ascii_minus_formatter(ax):
-    """为坐标轴应用ASCII负号格式化器"""
-    ax.xaxis.set_major_formatter(FuncFormatter(format_with_ascii_minus))
-    ax.yaxis.set_major_formatter(FuncFormatter(format_with_ascii_minus))
+# 初始化matplotlib中文显示设置
+configure_chinese_plot_style()
 
 
 class MedicalGraphAnalyzer:
     """医疗知识图谱分析器"""
     
-    def __init__(self, nodes_file: str, edges_file: str, output_dir: str = 'output'):
+    def __init__(self, output_dir: str = str(OUTPUT_DIR)):
         """
         初始化分析器
         
         参数:
-            nodes_file: 节点文件路径
-            edges_file: 边文件路径
             output_dir: 输出目录
         """
-        self.nodes_file: str = nodes_file
-        self.edges_file: str = edges_file
         self.output_dir: str = output_dir
-        self.graph: Optional[nx.DiGraph] = None
-        self.nodes_df: Optional[pd.DataFrame] = None
-        self.edges_df: Optional[pd.DataFrame] = None
         
-        # 创建输出目录
-        os.makedirs(os.path.join(output_dir, 'full_graph'), exist_ok=True)
-        os.makedirs(os.path.join(output_dir, 'subgraph'), exist_ok=True)
+        # 创建图片生成基础目录
+        self.base_dir = os.path.join(output_dir, 'images', 'base')
+        os.makedirs(os.path.join(self.base_dir, 'full_graph'), exist_ok=True)
+        os.makedirs(os.path.join(self.base_dir, 'subgraph'), exist_ok=True)
         
     def load_data(self) -> None:
         """加载图数据"""
         print("正在加载数据...")
         try:
-            self.nodes_df = pd.read_csv(self.nodes_file)
-            self.edges_df = pd.read_csv(self.edges_file)
+            self.nodes_df = load_nodes()
+            self.edges_df = load_edges()
             
             if self.nodes_df is None or self.edges_df is None:
                 raise ValueError("数据加载失败")
@@ -113,7 +90,7 @@ class MedicalGraphAnalyzer:
             print(f"构建关系类型为 {rel_type} 的子图...")
         
         # 创建有向图
-        G = nx.DiGraph()
+        G: nx.DiGraph = nx.DiGraph()
         
         # 添加节点
         for _, row in self.nodes_df.iterrows():
@@ -135,10 +112,6 @@ class MedicalGraphAnalyzer:
         self.graph = G
         return G
     
-    def power_law_func(self, x, a, b):
-        """幂律函数: y = a * x^(-b)"""
-        return a * np.power(x, -b)
-    
     def analyze_degree_distribution(self, output_prefix: str = "full", is_subgraph: bool = False) -> Dict[str, Any]:
         """
         分析度分布
@@ -159,7 +132,7 @@ class MedicalGraphAnalyzer:
         G_undirected = self.graph.to_undirected()
         
         # 计算度
-        degrees = dict(G_undirected.degree())
+        degrees = dict(G_undirected.degree())  # type: ignore
         degree_values = list(degrees.values())
         
         # 统计度分布
@@ -174,7 +147,7 @@ class MedicalGraphAnalyzer:
         
         # 确定输出路径
         subdir = 'subgraph' if is_subgraph else 'full_graph'
-        output_path = os.path.join(self.output_dir, subdir, f'{output_prefix}_degree_distribution.png')
+        output_path = os.path.join(self.base_dir, subdir, f'{output_prefix}_degree_distribution.png')
         
         # 幂律拟合 (只对度>0的数据拟合，用于输出统计信息)
         valid_idx = [i for i, d in enumerate(degrees_sorted) if d > 0 and counts[i] > 0]
@@ -189,12 +162,12 @@ class MedicalGraphAnalyzer:
             # 在对数空间进行线性拟合
             log_x = np.log10(x_fit)
             log_y = np.log10(y_fit)
-            slope, intercept, r_value, p_value, std_err = linregress(log_x, log_y)
+            slope, intercept, r_value, p_value, std_err = linregress(log_x, log_y)  # type: ignore
 
-            gamma = -slope
+            gamma = -slope  # type: ignore
             has_fit = True
             print(f"幂律指数 γ = {gamma:.2f}")
-            print(f"R² = {r_value**2:.3f}")
+            print(f"R² = {r_value**2:.3f}")  # type: ignore
         except Exception as e:
             print(f"拟合失败: {e}")
         
@@ -207,9 +180,6 @@ class MedicalGraphAnalyzer:
         
         ax.set_xscale('log')
         ax.set_yscale('log')
-        
-        # 应用ASCII负号格式化器
-        apply_ascii_minus_formatter(ax)
         
         # 设置y轴范围，向下扩展一点避免显示不完全
         y_min = min(counts) * 0.5  # 比最小值再小一点
@@ -234,7 +204,7 @@ class MedicalGraphAnalyzer:
             'min_degree': min(degree_values),
             'max_degree': max(degree_values),
             'gamma': gamma if has_fit else None,
-            'r_squared': r_value**2 if has_fit else None
+            'r_squared': r_value**2 if has_fit else None  # type: ignore
         }
         
     def analyze_clustering_coefficient(self, output_prefix: str = "full", is_subgraph: bool = False) -> None:
@@ -254,13 +224,13 @@ class MedicalGraphAnalyzer:
         G_undirected = self.graph.to_undirected()
         
         # 计算聚类系数
-        clustering_coeffs = nx.clustering(G_undirected)
+        clustering_coeffs = cast(Dict[Any, float], nx.clustering(G_undirected))
         avg_clustering = nx.average_clustering(G_undirected)
         
         print(f"平均聚类系数: {avg_clustering:.4f}")
         
         # 按度汇总平均聚类系数
-        degrees = dict(G_undirected.degree())
+        degrees = dict(G_undirected.degree())  # type: ignore
         
         # 创建度到聚类系数的映射
         degree_to_clustering: Dict[int, List[float]] = {}
@@ -287,6 +257,8 @@ class MedicalGraphAnalyzer:
         has_fit = False
         slope = 0
         r_value = 0
+        x_line: np.ndarray = np.array([])
+        y_line: np.ndarray = np.array([])
         
         if len(valid_data) > 5:
             x_fit = np.array([d for d, c in valid_data])
@@ -296,15 +268,15 @@ class MedicalGraphAnalyzer:
                 # 在对数空间进行线性拟合
                 log_x = np.log10(x_fit)
                 log_y = np.log10(y_fit)
-                slope, intercept, r_value, p_value, std_err = linregress(log_x, log_y)
+                slope, intercept, r_value, p_value, std_err = linregress(log_x, log_y)  # type: ignore
                 
-                print(f"聚类系数幂律指数 β = {-slope:.2f}")
-                print(f"R² = {r_value**2:.3f}")
+                print(f"聚类系数幂律指数 β = {-slope:.2f}")  # type: ignore
+                print(f"R² = {r_value**2:.3f}")  # type: ignore
                 
                 # 计算拟合线数据
                 has_fit = True
                 x_line = np.logspace(np.log10(min(x_fit)), np.log10(max(x_fit)), 100)
-                y_line = 10**intercept * x_line**slope
+                y_line = 10**intercept * x_line**slope  # type: ignore
             except Exception as e:
                 print(f"拟合失败: {e}")
                 has_fit = False
@@ -319,17 +291,13 @@ class MedicalGraphAnalyzer:
         # 绘制拟合线
         if has_fit:
             # 使用英文减号避免字体问题
-            beta_value = -slope
+            beta_value = -slope  # type: ignore
             ax.plot(x_line, y_line, 'b--', linewidth=2, alpha=0.7,
                    label=f'Power-law fit(幂律拟合): β={beta_value:.2f}')
         
         ax.set_xscale('log')
         ax.set_yscale('log')
         
-        # 应用ASCII减号格式化器
-        apply_ascii_minus_formatter(ax)
-        
-        ax.set_xlabel('Degree k(度)', fontsize=14, fontweight='bold')
         ax.set_ylabel('Average Clustering Coefficient C(k)(平均聚类系数)', 
                      fontsize=14, fontweight='bold')
         ax.set_title('Clustering Coefficient(聚类系数)', 
@@ -341,7 +309,7 @@ class MedicalGraphAnalyzer:
         
         # 确定输出路径
         subdir = 'subgraph' if is_subgraph else 'full_graph'
-        output_path = os.path.join(self.output_dir, subdir, f'{output_prefix}_clustering_coefficient.png')
+        output_path = os.path.join(self.base_dir, subdir, f'{output_prefix}_clustering_coefficient.png')
         
         plt.tight_layout()
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -413,12 +381,9 @@ class MedicalGraphAnalyzer:
                     fontsize=16, fontweight='bold')
         ax.grid(True, alpha=0.3, linestyle='--')
         
-        # 应用ASCII负号格式化器
-        apply_ascii_minus_formatter(ax)
-        
         # 确定输出路径
         subdir = 'subgraph' if is_subgraph else 'full_graph'
-        output_path = os.path.join(self.output_dir, subdir, f'{output_prefix}_path_length.png')
+        output_path = os.path.join(self.base_dir, subdir, f'{output_prefix}_path_length.png')
         
         plt.tight_layout()
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -474,12 +439,9 @@ class MedicalGraphAnalyzer:
                     fontsize=16, fontweight='bold')
         ax.grid(True, alpha=0.3, linestyle='--')
         
-        # 应用ASCII负号格式化器
-        apply_ascii_minus_formatter(ax)
-        
         # 确定输出路径
         subdir = 'subgraph' if is_subgraph else 'full_graph'
-        output_path = os.path.join(self.output_dir, subdir, f'{output_prefix}_connected_components.png')
+        output_path = os.path.join(self.base_dir, subdir, f'{output_prefix}_connected_components.png')
         
         plt.tight_layout()
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -547,7 +509,7 @@ def main():
     print("="*60)
     
     # 初始化分析器
-    analyzer = MedicalGraphAnalyzer('data/nodes.csv', 'data/edges.csv')
+    analyzer = MedicalGraphAnalyzer()
     
     # 加载数据
     analyzer.load_data()

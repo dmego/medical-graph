@@ -1,0 +1,126 @@
+{
+    "total_nodes": 44112,
+    "top_nodes": [
+        {
+            "node_id": 20884,
+            "name": "内科",
+            "type": "Department",
+            "pagerank": 0.0011639809205435
+        },
+        {
+            "node_id": 15485,
+            "name": "白酒",
+            "type": "Food",
+            "pagerank": 0.0011278041923411
+        },
+        {
+            "node_id": 20597,
+            "name": "血常规",
+            "type": "Check",
+            "pagerank": 0.001117388255268
+        },
+        {
+            "node_id": 20864,
+            "name": "外科",
+            "type": "Department",
+            "pagerank": 0.0009153129389018
+        },
+        {
+            "node_id": 15542,
+            "name": "鸡蛋",
+            "type": "Food",
+            "pagerank": 0.0008869138082472
+        },
+        {
+            "node_id": 17488,
+            "name": "啤酒",
+            "type": "Food",
+            "pagerank": 0.0008515697603925
+        },
+        {
+            "node_id": 11047,
+            "name": "醋酸泼尼松片",
+            "type": "Drug",
+            "pagerank": 0.000743137686042
+        },
+        {
+            "node_id": 12914,
+            "name": "鸡肉",
+            "type": "Food",
+            "pagerank": 0.0007336692091708
+        },
+        {
+            "node_id": 9597,
+            "name": "维生素B2片",
+            "type": "Drug",
+            "pagerank": 0.0007308692846655
+        },
+        {
+            "node_id": 10079,
+            "name": "消癌平片",
+            "type": "Drug",
+            "pagerank": 0.000724341188431
+        },
+        {
+            "node_id": 10534,
+            "name": "卡托普利片",
+            "type": "Drug",
+            "pagerank": 0.0007181088570621
+        },
+        {
+            "node_id": 9453,
+            "name": "盐酸左氧氟沙星胶囊",
+            "type": "Drug",
+            "pagerank": 0.0007088855087926
+        },
+        {
+            "node_id": 11099,
+            "name": "诺氟沙星胶囊",
+            "type": "Drug",
+            "pagerank": 0.0007058326036763
+        },
+        {
+            "node_id": 10444,
+            "name": "盐酸左氧氟沙星片",
+            "type": "Drug",
+            "pagerank": 0.0006954193344516
+        },
+        {
+            "node_id": 19499,
+            "name": "尿常规",
+            "type": "Check",
+            "pagerank": 0.0006928781948341
+        },
+        {
+            "node_id": 9773,
+            "name": "苯妥英钠片",
+            "type": "Drug",
+            "pagerank": 0.0006799725728668
+        },
+        {
+            "node_id": 14759,
+            "name": "芝麻",
+            "type": "Food",
+            "pagerank": 0.0006772118233228
+        },
+        {
+            "node_id": 11807,
+            "name": "人血白蛋白",
+            "type": "Drug",
+            "pagerank": 0.0006680053131068
+        },
+        {
+            "node_id": 9127,
+            "name": "吡拉西坦片",
+            "type": "Drug",
+            "pagerank": 0.0006639793526785
+        },
+        {
+            "node_id": 12411,
+            "name": "苦参碱氯化钠注射液",
+            "type": "Drug",
+            "pagerank": 0.0006593001518054
+        }
+    ],
+    "top_10_avg_pagerank": 0.00089949872440034
+}

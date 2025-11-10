@@ -1,0 +1,207 @@
+{
+  "num_communities": 47,
+  "modularity": 0.45472886353776126,
+  "largest_community_size": 5195,
+  "community_insights": [
+    {
+      "community_id": 7,
+      "size": 5195,
+      "type_distribution": {
+        "Producer": 1866,
+        "Disease": 1053,
+        "Food": 670,
+        "Symptom": 666,
+        "Check": 478,
+        "Drug": 454,
+        "Department": 8
+      },
+      "sample_nodes": [
+        "肺转移瘤",
+        "肺癌",
+        "阿米巴肠病",
+        "柏-查综合征",
+        "Brenneman综合征"
+      ]
+    },
+    {
+      "community_id": 1,
+      "size": 4725,
+      "type_distribution": {
+        "Producer": 1728,
+        "Disease": 1013,
+        "Symptom": 884,
+        "Food": 449,
+        "Drug": 357,
+        "Check": 289,
+        "Department": 5
+      },
+      "sample_nodes": [
+        "缺血缺氧性脑病",
+        "新生儿缺氧缺血性脑病",
+        "半乳糖血症",
+        "腹型癫痫综合征",
+        "尼曼－匹克氏病"
+      ]
+    },
+    {
+      "community_id": 6,
+      "size": 3882,
+      "type_distribution": {
+        "Producer": 1724,
+        "Disease": 866,
+        "Food": 415,
+        "Symptom": 376,
+        "Drug": 367,
+        "Check": 131,
+        "Department": 3
+      },
+      "sample_nodes": [
+        "肺念珠菌病",
+        "变应性血管炎",
+        "肠病性肢皮炎综合征",
+        "肠道病毒所致各系统感染",
+        "阴茎纤维性海绵体炎"
+      ]
+    },
+    {
+      "community_id": 4,
+      "size": 3829,
+      "type_distribution": {
+        "Producer": 1450,
+        "Disease": 816,
+        "Food": 510,
+        "Symptom": 469,
+        "Drug": 315,
+        "Check": 260,
+        "Department": 9
+      },
+      "sample_nodes": [
+        "百日咳",
+        "大叶性肺炎",
+        "大楼病综合征",
+        "肺-胸膜阿米巴病",
+        "肺放线菌病"
+      ]
+    },
+    {
+      "community_id": 3,
+      "size": 3771,
+      "type_distribution": {
+        "Producer": 1536,
+        "Disease": 789,
+        "Symptom": 495,
+        "Food": 345,
+        "Drug": 341,
+        "Check": 260,
+        "Department": 5
+      },
+      "sample_nodes": [
+        "肺泡蛋白质沉积症",
+        "喘息样支气管炎",
+        "大量羊水吸入",
+        "单纯性肺嗜酸粒细胞浸润症",
+        "肺出血－肾炎综合征"
+      ]
+    },
+    {
+      "community_id": 14,
+      "size": 3751,
+      "type_distribution": {
+        "Producer": 1216,
+        "Disease": 858,
+        "Symptom": 539,
+        "Food": 488,
+        "Drug": 365,
+        "Check": 279,
+        "Department": 6
+      },
+      "sample_nodes": [
+        "血管瘤",
+        "肠气肿综合征",
+        "紫绀-杵状指-肝病综合征",
+        "早孕反应",
+        "蹄铁形肾"
+      ]
+    },
+    {
+      "community_id": 11,
+      "size": 3684,
+      "type_distribution": {
+        "Producer": 1121,
+        "Disease": 787,
+        "Symptom": 683,
+        "Food": 533,
+        "Drug": 285,
+        "Check": 272,
+        "Department": 3
+      },
+      "sample_nodes": [
+        "川崎病",
+        "Felty综合征",
+        "类风湿性关节炎肾损害",
+        "臂丛神经痛",
+        "丛集性头痛"
+      ]
+    },
+    {
+      "community_id": 5,
+      "size": 2657,
+      "type_distribution": {
+        "Producer": 1003,
+        "Disease": 576,
+        "Symptom": 328,
+        "Food": 271,
+        "Check": 243,
+        "Drug": 235,
+        "Department": 1
+      },
+      "sample_nodes": [
+        "苯中毒",
+        "成人呼吸窘迫综合征",
+        "二硫化碳中毒",
+        "肺水肿",
+        "镉中毒"
+      ]
+    },
+    {
+      "community_id": 8,
+      "size": 2381,
+      "type_distribution": {
+        "Producer": 917,
+        "Disease": 436,
+        "Symptom": 331,
+        "Check": 258,
+        "Food": 247,
+        "Drug": 186,
+        "Department": 6
+      },
+      "sample_nodes": [
+        "Goodpasture综合征",
+        "高血压",
+        "Milk-Alkali综合征",
+        "巴特综合征",
+        "成人多囊肾"
+      ]
+    },
+    {
+      "community_id": 18,
+      "size": 2294,
+      "type_distribution": {
+        "Producer": 930,
+        "Disease": 498,
+        "Symptom": 316,
+        "Food": 210,
+        "Drug": 194,
+        "Check": 145,
+        "Department": 1
+      },
+      "sample_nodes": [
+        "视神经炎",
+        "视神经萎缩",
+        "视束病变",
+        "压迫性视神经病变",
+        "内分泌性眼球突出"
+      ]
+    }
+  ]
+}
