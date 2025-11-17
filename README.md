@@ -1,6 +1,58 @@
 # 医疗知识图谱分析平台
 
-本项目是一个基于Python的医疗知识图谱分析平台。它利用 `NetworkX`、`Pandas` 和 `Matplotlib` 等库，对医疗领域的实体和关系数据进行深入的图分析。平台实现了多种经典的图算法，包括 **PageRank**、**HITS** 和 **Louvain社区发现**，旨在从复杂的知识网络中提取有价值的业务洞察。
+本项目是一个基于Python的医疗知识图谱分析平台。它对医疗领域的实体和关系数据进行深入的图分析。平台实现了多种经典的图算法，包括 **基础图分析**、**PageRank**、**HITS** 和 **Louvain社区发现** 和 **Node2Vec 嵌入分析**。旨在从复杂的知识网络中提取有价值的业务洞察。
+
+## 📚 数据说明
+
+- 规模：约 4.4 万个实体（节点）、约 30 万条关系（边）。
+- 实体类别（7 类）：
+  - 疾病（Disease / Diseases）
+  - 药品（Drug）
+  - 食物（Food）
+  - 检查（Check）
+  - 科室（Department）
+  - 药品厂商（Producer）
+  - 症状（Symptom / Symptoms）
+- 关系类型（含端点与标识）：
+  - 疾病—忌吃食物：(Disease, Food) → `no_eat`
+  - 疾病—宜吃食物：(Disease, Food) → `do_eat`
+  - 疾病—推荐吃食物：(Disease, Food) → `recommand_eat`
+  - 疾病—通用药品：(Disease, Drug) → `common_drug`
+  - 疾病—热门药品：(Disease, Drug) → `recommand_drug`
+  - 疾病—检查：(Disease, Check) → `need_check`
+  - 疾病—症状：(Disease, Symptom) → `has_symptom`
+  - 疾病—并发：(Disease, Disease) → `acompany_with`
+  - 疾病—所属科室：(Disease, Department) → `belongs_to`
+  - 厂商—生产药物：(Producer, Drug) → `drugs_of`
+  - 科室—科室：(Department, Department) → `belongs_to`
+
+> 注：存在多对一/多对多的关系，分析时会按上述 `rel_type` 进行区分与统计。
+
+## 🗂 数据文件格式
+
+数据位于 `data/` 目录下，包含两个 CSV 文件：
+
+- `nodes.csv`（节点表）字段：
+  - `node_id`：节点唯一标识（整数）
+  - `name`：节点中文名称
+  - `type`：节点类型（如 `Diseases`、`Drug` 等）
+  - `other_attrs`：仅 `Diseases` 节点存在的 JSON 字符串，常见字段包括：
+    - `cause`（病因）
+    - `cure_department`（所属科室，可能为列表）
+    - `desc`（疾病描述）
+    - `prevent`（预防措施）
+    - `cured_prob`（治愈概率）
+    - `cure_way`（治疗方式）
+    - `cure_lasttime`（治疗周期）
+    - `easy_get`（易感人群）
+
+- `edges.csv`（边表）字段：
+  - `src_id`：源节点 `node_id`
+  - `dst_id`：目标节点 `node_id`
+  - `rel_type`：关系类型（如 `no_eat`、`common_drug` 等）
+  - `other_attrs`：关系中文信息的 JSON 字符串，例如 `{ "name": "推荐食谱" }`
+
+> 提示：分析模块会自动识别上述字段；请勿修改原始数据文件的列名与含义。
 
 ## ✨ 主要功能
 
@@ -8,6 +60,10 @@
 - **PageRank 分析**: 评估网络中每个节点的“全局重要性”，识别出整个知识体系中的核心概念。
 - **HITS 分析**: 区分节点的“权威性”（Authority）和“枢纽性”（Hub），识别出高质量信息的提供者和优质信息的聚合者。
 - **Louvain 社区发现**: 对图进行社区划分，识别出功能上或语义上高度相关的节点集群，并分析其内部结构和业务含义。
+- **Node2Vec 嵌入分析**: 基于 igraph 随机游走与 gensim Word2Vec 生成节点嵌入；
+  - KMeans 聚类 + UMAP/t‑SNE 二维投影；
+  - Louvain–KMeans 对齐热力图（验证语义一致性）；
+  - 叠加 PageRank 高亮与 HITS（Authority/Hub）标签，定位锚点实体。
 - **自动化报告生成**: 每个分析模块都能自动生成详细的 Markdown 分析报告和配套的可视化图表，便于理解和分享。
 
 ## 📄 分析报告
@@ -18,6 +74,7 @@
 - [**PageRank 分析报告**](./reports/pagerank_analysis.md)
 - [**HITS 分析报告**](./reports/hits_analysis.md)
 - [**Louvain 社区发现报告**](./reports/louvain_analysis.md)
+- [**Node2Vec 嵌入分析报告**](./reports/node2vec_analysis.md)
 
 ## 🚀 如何开始
 
@@ -73,6 +130,21 @@ python -m src.hits_analysis
 python -m src.louvain_analysis
 ```
 
+### 5. 运行 Node2Vec 嵌入分析
+
+```bash
+# 基本运行（如存在缓存将复用嵌入以提速）
+python -m src.node2vec_analysis
+
+# 如需强制重新训练嵌入
+python -m src.node2vec_analysis --force-embeddings
+
+# 示例：自定义游走与聚类网格（可选）
+python -m src.node2vec_analysis \
+  --walk-length 80 --num-walks 10 --p 0.25 --q 1.0 \
+  --k-grid 6,8,10,12,14,16 --silhouette-sample-size 4000
+```
+
 ## 📊 输出结果
 
 每次成功运行分析脚本后，相关的输出会自动保存到 `output/` 和 `reports/` 目录中。
@@ -91,7 +163,7 @@ python -m src.louvain_analysis
 
 ## 📂 项目结构
 
-```
+```text
 .
 ├── data/                  # 原始数据 (节点和边)
 │   ├── edges.csv

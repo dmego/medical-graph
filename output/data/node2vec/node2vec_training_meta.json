@@ -1,0 +1,17 @@
+{
+  "walk_length": 80.0,
+  "num_walks": 10.0,
+  "p": 0.25,
+  "q": 1.0,
+  "dimensions": 128.0,
+  "window": 10.0,
+  "epochs": 20.0,
+  "workers_used": 13.0,
+  "walk_generation_seconds": 135.71132604200102,
+  "training_seconds": 481.8348383329867,
+  "total_walks": 441100.0,
+  "total_walk_tokens": 35288000.0,
+  "tokens_per_second": 73236.71348067437,
+  "missing_vertices": 0.0,
+  "total_seconds": 617.5461643749877
+}
